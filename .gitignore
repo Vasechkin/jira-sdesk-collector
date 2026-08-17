@@ -1,0 +1,33 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+config.toml
+config.*.toml
+!config.example.toml
+*.pem
+*.key
+*.crt
+
+# Collected data
+output/
+*.json.tmp
+*.csv.tmp
+
+# Python/tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+work/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/

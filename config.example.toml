@@ -1,0 +1,38 @@
+# Copy to config.toml. The copied file is ignored by Git.
+
+[jira]
+base_url = "https://jira.example.invalid"
+api_path = "/rest/api/2"
+token_env = "JIRA_TOKEN"
+proxy = ""
+ca_bundle = ""
+verify_tls = true
+timeout_seconds = 30
+page_size = 100
+
+# The collector replaces {period_days} before sending this JQL to Jira.
+# Customize the complete query in your untracked config.toml.
+jql = "project = PROJECT_KEY AND (created >= -{period_days}d OR updated >= -{period_days}d OR statusCategory != Done) ORDER BY updated DESC"
+period_days = 10
+
+# Jira field IDs are allowed here as well as standard names.
+fields = [
+  "summary",
+  "description",
+  "status",
+  "priority",
+  "created",
+  "updated",
+  "resolutiondate",
+  "assignee",
+  "reporter",
+  "components",
+  "labels",
+  "issuelinks",
+  "security",
+]
+
+[output]
+directory = "output"
+json_filename = "jira_tickets.json"
+csv_filename = "jira_tickets.csv"
