@@ -1,4 +1,4 @@
-"""Configuration loading and validation."""
+"""Загрузка и проверка конфигурации."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 
 class ConfigError(ValueError):
-    """Raised when local collector configuration is invalid."""
+    """Ошибка локальной конфигурации коллектора."""
 
 
 @dataclass(frozen=True)
@@ -45,21 +45,21 @@ class Config:
 def _required(section: dict[str, Any], key: str) -> Any:
     value = section.get(key)
     if value is None or value == "":
-        raise ConfigError(f"Missing required configuration value: {key}")
+        raise ConfigError(f"Не задан обязательный параметр конфигурации: {key}")
     return value
 
 
 def _validate_url(value: str, label: str) -> str:
     parsed = urlparse(value)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise ConfigError(f"{label} must be an absolute HTTP(S) URL")
+        raise ConfigError(f"{label} должен быть абсолютным HTTP(S)-адресом")
     return value.rstrip("/")
 
 
 def load_config(path: str | Path) -> Config:
     config_path = Path(path).expanduser().resolve()
     if not config_path.is_file():
-        raise ConfigError(f"Configuration file not found: {config_path}")
+        raise ConfigError(f"Файл конфигурации не найден: {config_path}")
 
     load_dotenv(config_path.parent / ".env", override=False)
     with config_path.open("rb") as file:
@@ -68,48 +68,48 @@ def load_config(path: str | Path) -> Config:
     jira = raw.get("jira", {})
     output = raw.get("output", {})
     if not isinstance(jira, dict) or not isinstance(output, dict):
-        raise ConfigError("[jira] and [output] must be TOML tables")
+        raise ConfigError("[jira] и [output] должны быть таблицами TOML")
 
     token_env = str(_required(jira, "token_env"))
     token = os.getenv(token_env)
     if not token:
-        raise ConfigError(f"Environment variable {token_env!r} is not set")
+        raise ConfigError(f"Переменная окружения {token_env!r} не задана")
 
     period_days = int(_required(jira, "period_days"))
     if period_days < 1:
-        raise ConfigError("period_days must be at least 1")
+        raise ConfigError("period_days должен быть не меньше 1")
     jql_template = str(_required(jira, "jql"))
     try:
         jql = jql_template.format(period_days=period_days)
     except (KeyError, ValueError) as error:
-        raise ConfigError(f"Invalid jql template: {error}") from error
+        raise ConfigError(f"Некорректный шаблон jql: {error}") from error
 
     proxy_value = str(jira.get("proxy", "")).strip() or None
     proxy = _validate_url(proxy_value, "proxy") if proxy_value else None
     verify_tls = jira.get("verify_tls", True)
     if not isinstance(verify_tls, bool):
-        raise ConfigError("verify_tls must be true or false")
+        raise ConfigError("verify_tls должен иметь значение true или false")
     ca_bundle = str(jira.get("ca_bundle", "")).strip()
     if ca_bundle:
         ca_path = Path(ca_bundle).expanduser()
         if not ca_path.is_absolute():
             ca_path = config_path.parent / ca_path
         if not ca_path.is_file():
-            raise ConfigError(f"TLS CA bundle not found: {ca_path}")
+            raise ConfigError(f"Не найден файл сертификатов TLS: {ca_path}")
         verify: bool | str = str(ca_path.resolve())
     else:
         verify = verify_tls
 
     fields = jira.get("fields", [])
     if not isinstance(fields, list) or not fields or not all(isinstance(item, str) for item in fields):
-        raise ConfigError("fields must be a non-empty list of strings")
+        raise ConfigError("fields должен быть непустым списком строк")
 
     page_size = int(jira.get("page_size", 100))
     if not 1 <= page_size <= 1000:
-        raise ConfigError("page_size must be between 1 and 1000")
+        raise ConfigError("page_size должен быть от 1 до 1000")
     timeout_seconds = float(jira.get("timeout_seconds", 30))
     if timeout_seconds <= 0:
-        raise ConfigError("timeout_seconds must be greater than 0")
+        raise ConfigError("timeout_seconds должен быть больше 0")
 
     output_dir = Path(str(output.get("directory", "output"))).expanduser()
     if not output_dir.is_absolute():

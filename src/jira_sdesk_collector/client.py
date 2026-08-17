@@ -1,4 +1,4 @@
-"""Minimal Jira REST API client."""
+"""Минимальный клиент REST API Jira."""
 
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ class JiraClient:
     def __init__(self, config: JiraConfig, session: requests.Session | None = None) -> None:
         self.config = config
         self.session = session or requests.Session()
-        # Runtime connectivity must come from the local collector config, not
-        # from ambient proxy or authentication settings on the host.
+        # Параметры подключения берутся только из локальной конфигурации
+        # коллектора, а не из настроек прокси или авторизации операционной системы.
         self.session.trust_env = False
         self.session.headers.update(
             {"Authorization": f"Bearer {config.token}", "Accept": "application/json"}
@@ -42,7 +42,7 @@ class JiraClient:
             payload = response.json()
             issues = payload.get("issues")
             if not isinstance(issues, list):
-                raise ValueError("Jira response does not contain an issues list")
+                raise ValueError("Ответ Jira не содержит список issues")
             yield from issues
 
             start_at += len(issues)

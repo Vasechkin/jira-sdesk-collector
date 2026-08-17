@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "jira-sdesk-collector"
 version = "0.1.0"
-description = "Config-driven Jira REST API collector exporting JSON and CSV"
+description = "Настраиваемый коллектор Jira REST API с выгрузкой в JSON и CSV"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }

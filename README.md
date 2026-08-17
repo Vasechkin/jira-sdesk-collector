@@ -1,16 +1,16 @@
-# Jira SDESK Collector
+# Коллектор Jira SDESK
 
-Python CLI collector that reads Jira issues through the REST API using Bearer-token authentication and an optional HTTP proxy. It writes the complete Jira issue objects to JSON and a flattened, report-friendly CSV file.
+Консольный коллектор на Python получает заявки из Jira через REST API с Bearer-токеном и необязательным HTTP-прокси. Полные объекты заявок сохраняются в JSON, а основные поля для отчёта — в плоский CSV.
 
-The repository contains no working endpoint, proxy, token, JQL, CA certificate, or local configuration. Runtime values live only in ignored local files.
+В репозитории нет рабочих адресов, прокси, токенов, JQL-запросов, сертификатов удостоверяющего центра и локальных конфигураций. Все параметры среды находятся только в локальных файлах, исключённых из Git.
 
-## Requirements
+## Требования
 
-- Python 3.11 or newer
-- Jira personal access token with permission to search the target project
-- corporate CA certificate if the Jira TLS chain is not trusted by the operating system
+- Python 3.11 или новее;
+- персональный токен Jira с правом поиска заявок в нужном проекте;
+- корпоративный сертификат удостоверяющего центра, если цепочка TLS Jira не доверена операционной системой.
 
-## Installation
+## Установка
 
 ```bash
 python3 -m venv .venv
@@ -19,52 +19,52 @@ python -m pip install --upgrade pip
 python -m pip install -e .
 ```
 
-For development and tests:
+Для разработки и запуска тестов:
 
 ```bash
 python -m pip install -e '.[dev]'
 pytest
 ```
 
-## Local configuration
+## Локальная конфигурация
 
-Create local copies of both examples:
+Создайте локальные копии примеров:
 
 ```bash
 cp config.example.toml config.toml
 cp .env.example .env
 ```
 
-Edit `config.toml` with the real Jira base URL, REST API path, complete JQL, reporting period, proxy, TLS settings, requested fields, and output names. Put only the token in `.env` under the environment-variable name selected by `token_env`.
+В `config.toml` укажите настоящий базовый URL Jira, путь REST API, полный JQL-запрос, период отчёта, прокси, параметры TLS, запрашиваемые поля и имена выходных файлов. Токен храните только в `.env` — в переменной окружения, имя которой задано параметром `token_env`.
 
-The sample JQL demonstrates the intended selection rule: tickets created or updated during the configured period, plus older tickets whose status category is not done. Replace the placeholder project key and adjust the query to match the local Jira workflow.
+Пример JQL показывает ожидаемое правило отбора: заявки, созданные или изменённые за настроенный период, а также более старые незакрытые заявки. Замените условный ключ проекта и адаптируйте запрос под локальный процесс Jira.
 
-TLS behavior is controlled locally:
+Настройка TLS выполняется локально:
 
-- set `ca_bundle` to a PEM CA bundle path for a private corporate CA;
-- leave `ca_bundle` empty to use the system trust store;
-- set `verify_tls = false` only for a temporary diagnostic run.
+- задайте в `ca_bundle` путь к PEM-файлу корпоративного удостоверяющего центра;
+- оставьте `ca_bundle` пустым, чтобы использовать системное хранилище сертификатов;
+- устанавливайте `verify_tls = false` только для временной диагностики.
 
-The same optional proxy is used for HTTP and HTTPS Jira requests. Leave `proxy` empty for a direct connection.
+Один необязательный прокси используется для HTTP- и HTTPS-запросов к Jira. Для прямого подключения оставьте `proxy` пустым.
 
-## Run
+## Запуск
 
 ```bash
 jira-sdesk-collector --config config.toml
 ```
 
-The command creates the configured output directory and atomically replaces the JSON and CSV outputs. CSV is encoded as UTF-8 with BOM for convenient opening in spreadsheet applications. The process exits with status 1 on invalid configuration, transport errors, Jira HTTP errors, or malformed responses.
+Команда создаёт настроенный выходной каталог и атомарно заменяет файлы JSON и CSV. CSV записывается в UTF-8 с BOM, чтобы его было удобно открывать в табличных редакторах. При неверной конфигурации, сетевой ошибке, ошибке HTTP Jira или некорректном ответе процесс завершается с кодом 1.
 
-## Security notes
+## Безопасность
 
-- Never commit `.env`, `config.toml`, certificates, keys, or generated exports.
-- Keep `verify_tls = true` and configure `ca_bundle` for routine use.
-- Give the Jira token only the permissions required to read the selected tickets.
-- Review staged changes before every commit. The included `.gitignore` blocks the common local secret and output files, but it is not a substitute for review.
+- Не добавляйте в Git файлы `.env`, `config.toml`, сертификаты, ключи и полученные выгрузки.
+- Для постоянной работы оставляйте `verify_tls = true` и задавайте `ca_bundle`.
+- Выдавайте токену Jira только права, необходимые для чтения выбранных заявок.
+- Перед каждым commit проверяйте добавленные файлы. `.gitignore` блокирует типовые локальные секреты и результаты, но не заменяет ручную проверку.
 
-## Export formats
+## Форматы выгрузки
 
-- JSON preserves each issue object returned by the Jira search endpoint.
-- CSV includes common report columns: key, summary, description, status, priority, timestamps, assignee, reporter, components, labels, issue links, and security level.
+- JSON сохраняет каждый объект заявки в том виде, в котором он получен от поискового API Jira.
+- CSV содержит основные столбцы отчёта: ключ, тему, описание, статус, приоритет, даты, исполнителя, автора, компоненты, метки, связи и уровень безопасности.
 
-Custom Jira field IDs can be added to `fields` in the local configuration. They remain present in JSON; add an explicit mapping in `issue_to_row()` if a custom field should also become a dedicated CSV column.
+В локальный список `fields` можно добавлять идентификаторы пользовательских полей Jira. Они сохранятся в JSON. Чтобы вывести пользовательское поле в отдельный столбец CSV, добавьте его явное преобразование в функцию `issue_to_row()`.

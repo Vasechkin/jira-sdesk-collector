@@ -46,5 +46,5 @@ fields = ["summary"]
     )
     monkeypatch.delenv("MISSING_COLLECTOR_TEST_TOKEN", raising=False)
 
-    with pytest.raises(ConfigError, match="is not set"):
+    with pytest.raises(ConfigError, match="не задана"):
         load_config(config)

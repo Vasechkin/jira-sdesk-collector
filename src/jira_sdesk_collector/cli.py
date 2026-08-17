@@ -1,4 +1,4 @@
-"""Command-line entry point."""
+"""Точка входа командной строки."""
 
 from __future__ import annotations
 
@@ -16,12 +16,12 @@ from .exporters import export_csv, export_json
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="jira-sdesk-collector",
-        description="Collect Jira issues and export JSON and CSV files.",
+        description="Получение заявок Jira с выгрузкой в JSON и CSV.",
     )
     parser.add_argument(
         "--config",
         default="config.toml",
-        help="path to local TOML configuration (default: config.toml)",
+        help="путь к локальной конфигурации TOML (по умолчанию: config.toml)",
     )
     return parser
 
@@ -41,9 +41,9 @@ def main() -> int:
     try:
         json_path, csv_path, count = run(args.config)
     except (ConfigError, requests.RequestException, ValueError, OSError) as error:
-        print(f"Error: {error}", file=sys.stderr)
+        print(f"Ошибка: {error}", file=sys.stderr)
         return 1
-    print(f"Collected {count} issues")
+    print(f"Получено заявок: {count}")
     print(f"JSON: {json_path}")
     print(f"CSV:  {csv_path}")
     return 0

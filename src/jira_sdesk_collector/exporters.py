@@ -1,4 +1,4 @@
-"""JSON and report-friendly CSV exporters."""
+"""Выгрузка в JSON и удобный для отчётов CSV."""
 
 from __future__ import annotations
 
