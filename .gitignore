@@ -1,4 +1,4 @@
-# Local configuration and secrets
+# Локальная конфигурация и секреты
 .env
 .env.*
 !.env.example
@@ -9,12 +9,12 @@ config.*.toml
 *.key
 *.crt
 
-# Collected data
+# Собранные данные
 output/
 *.json.tmp
 *.csv.tmp
 
-# Python/tooling
+# Python и служебные файлы инструментов
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -27,7 +27,7 @@ dist/
 build/
 work/
 
-# Editors and OS
+# Редакторы и операционная система
 .DS_Store
 .idea/
 .vscode/
