@@ -1,4 +1,4 @@
-name: tests
+name: Тесты
 
 on:
   push:
@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   pytest:
+    name: Проверка Python
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
